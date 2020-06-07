@@ -1,28 +1,25 @@
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Random;
 
-public final class Sheep extends Animal {
+public class Sheep extends Animal {
 
 	public Sheep(ArrayList<Integer> position, World world) {
-		super("Sheep", 4, 4, position, world);
-		// TODO Auto-generated constructor stub
+		super("Sheep", 4, 4, position, world, new Color(199, 167, 167));
+		
+	}
+	
+	public Sheep(String name, ArrayList<Integer> position, World world) {
+		super(name, 11, 4, position, world, new Color(46, 217, 168));
+		
 	}
 
 	@Override
-	public void draw() {
+	public Boolean action() {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void action() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void collision() {
-		// TODO Auto-generated method stub
-
+		Random random = new Random();
+		this.move(Animal.getMovement().get(random.nextInt(4)), 1);
+		return true;
 	}
 
 }

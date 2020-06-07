@@ -1,28 +1,30 @@
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Random;
 
 public final class Turtle extends Animal {
 
 	public Turtle(ArrayList<Integer> position, World world) {
-		super("Turtle", 4, 4, position, world);
-		// TODO Auto-generated constructor stub
+		super("Turtle", 2, 1, position, world, new Color(53, 89, 29));
+		
 	}
 
 	@Override
-	public void draw() {
+	public Boolean action() {
 		// TODO Auto-generated method stub
-
+		Random random = new Random();
+		this.move(Animal.getMovement().get(random.nextInt(4)), 1);
+		return true;
 	}
-
+	
 	@Override
-	public void action() {
+	public void collision(Organism other) {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void collision() {
-		// TODO Auto-generated method stub
-
+		if(this.getStrength() <= 5) {
+			System.out.println("Turtle broni siê przed atakiem " + other.toString());
+			return;
+		}
+		super.collision(other);
 	}
 
 }
