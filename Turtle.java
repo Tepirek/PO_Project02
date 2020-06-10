@@ -20,8 +20,8 @@ public final class Turtle extends Animal {
 	@Override
 	public void collision(Organism other) {
 		// TODO Auto-generated method stub
-		if(this.getStrength() <= 5) {
-			System.out.println("Turtle broni siê przed atakiem " + other.toString());
+		if(other.getStrength() < 5) {
+			this.getWorld().getSpectator().addNewComment("Turtle protects itself against " + other.toString());
 			return;
 		}
 		super.collision(other);

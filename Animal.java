@@ -76,8 +76,8 @@ public abstract class Animal extends Organism {
 				}
 				else {
 					if(this instanceof Fox) {
-						if(other.getStrength() > this.getStrength()) {
-							System.out.println("Lis nie ruszy siê na pole na którym stoi " + other.toString());
+						if(other instanceof Animal && other.getStrength() > this.getStrength()) {
+							this.getWorld().getSpectator().addNewComment(this.toString() + " will not move because of stronger organism " + other.toString());
 							return;
 						}
 					}
@@ -93,7 +93,7 @@ public abstract class Animal extends Organism {
 			// System.out.println("cannot copulate " + this.getCopulationCooldown() + " and " + otherAnimal.getCopulationCooldown());
 			return;
 		}
-		System.out.println("COPULATE " + this.getOrganismName());
+		// this.getWorld().getSpectator().addNewComment("Copulate: " + this.toString() + " and " + other.toString());
 		ArrayList<Integer> checkedPositions = new ArrayList<Integer>();
 		Random random = new Random();
 		for(int i = 0; i < 4; i++) {
@@ -161,13 +161,13 @@ public abstract class Animal extends Organism {
 			ArrayList<Integer> position = this.getPosition();
 			other.changePosition(position);
 			this.getWorld().removeOrganism(this);
-			System.out.println("Fight: " + other.toString() + " vs. " + this.toString() + " winner = " + other.getOrganismName());
+			this.getWorld().getSpectator().addNewComment("Fight: " + other.toString() + " vs. " + this.toString() + " winner = " + other.getOrganismName());
 		}
 		else if(this.getStrength() >= other.getStrength()) {
 			ArrayList<Integer> position = other.getPosition();
 			this.changePosition(position);
 			other.getWorld().removeOrganism(other);
-			System.out.println("Fight: " + this.toString() + " vs. " + other.toString() + " winner = " + this.getOrganismName());
+			this.getWorld().getSpectator().addNewComment("Fight: " + this.toString() + " vs. " + other.toString() + " winner = " + this.getOrganismName());
 		}
 
 	}

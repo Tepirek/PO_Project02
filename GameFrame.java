@@ -1,6 +1,7 @@
-import java.awt.Color;import java.awt.Component;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,8 +9,14 @@ import java.util.Arrays;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 public final class GameFrame extends JFrame {
 	
@@ -20,6 +27,10 @@ public final class GameFrame extends JFrame {
 	private JLabel commentBox;
 	private ArrayList<String> organismNames = new ArrayList<String>(Arrays.asList("Human", "Wolf", "Sheep", "Fox", "Turtle", "Antelope", "Cybersheep", "Grass", "Dandelion", "Guarana", "Wolfberry", "Heracleum"));
 	private ArrayList<Color> organismColors = new ArrayList<Color>(Arrays.asList(new Color(255, 255, 255), new Color(59, 59, 59), new Color(199, 167, 167), new Color(158, 81, 14), new Color(53, 89, 29), new Color(102, 79, 21), new Color(46, 217, 168), new Color(78, 181, 9), new Color(255, 247, 15), new Color(138, 47, 73), new Color(80, 13, 105), new Color(255, 0, 0)));
+	
+	public JLabel getCommentBox() {
+		return this.commentBox;
+	}
 	
 	public GameFrame(int width, int height) {
 		this.width = width;
@@ -96,9 +107,10 @@ public final class GameFrame extends JFrame {
 	
 	private void createCommentBox() {
 		commentBox = new JLabel();
-		commentBox.setBounds(0, this.height * cellSize, this.width * cellSize + 135, 115);
+		commentBox.setBounds(0, this.height * cellSize, this.width * cellSize + 135, 111);
 		commentBox.setOpaque(true);
 		commentBox.setBackground(Color.BLACK);
+		commentBox.setForeground(Color.WHITE);
 		commentBox.setVisible(true);
 		this.add(commentBox);
 	}

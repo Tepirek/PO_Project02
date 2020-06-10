@@ -1,16 +1,24 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public final class World {
+import javax.management.timer.Timer;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+
+public final class World extends Thread {
 
 	ArrayList<String> animalNames = new ArrayList<String>(Arrays.asList("Wolf", "Sheep", "Fox", "Turtle", "Antelope", "Cybersheep"));
 	ArrayList<String> plantNames = new ArrayList<String>(Arrays.asList("Grass", "Dandelion", "Guarana", "Wolfberry", "Heracleum"));
@@ -23,12 +31,15 @@ public final class World {
 	GameFrame gameFrame;
 	Organism player;
 	private int days;
-	
+	private Spectator spectator;
+	private Boolean isNewGame;
+
 	public final GameFrame getGameFrame() {
 		return gameFrame;
 	}
 
 	public World(int width, int height) {
+		this.isNewGame = true;
 		this.days = 0;
 		this.width = width;
 		this.height = height;
@@ -43,51 +54,15 @@ public final class World {
 			}
 		}
 		this.player = this.createOrganism("Human", new ArrayList<Integer>(Arrays.asList(this.width / 2, this.height / 2)), true);
+		this.spectator = new Spectator(this);
 	}
 	
 	public World() {
-		ArrayList<String> output = new ArrayList<String>();
-		File file = new File("save.txt");
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader("save.txt"));
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		String[] s = null;
-		try {
-			s = br.readLine().split(", ");
-			this.width = Integer.parseInt(s[0]);
-			this.height = Integer.parseInt(s[1]);
-			this.days = Integer.parseInt(s[2]);
-			this.organisms = new ArrayList<Organism>();
-			this.addAfter = new ArrayList<Organism>();
-			this.removeAfter = new ArrayList<Organism>();
-			this.gameFrame = new GameFrame(this.width, this.height);
-			this.map = new Organism[this.height][this.width];
-			while((s = br.readLine().split(", ")) != null) {
-				ArrayList<Integer> position = new ArrayList<Integer>(Arrays.asList(Integer.parseInt(s[4]), Integer.parseInt(s[5])));
-				if(s[0] == "Human") {
-					Human h = (Human) this.createOrganism("Human", position, true);
-					h.setStrength(Integer.parseInt(s[1]));
-					h.setAge(Integer.parseInt(s[3]));
-					h.setSkillCooldown(Integer.parseInt(s[6]));
-					h.setSkillDuration(Integer.parseInt(s[7]));
-					this.player = h;
-					h.changePosition(h.getPosition());
-				}
-				else {
-					Organism o = this.createOrganism(s[0], position, true);
-					o.setStrength(Integer.parseInt(s[1]));
-					o.setAge(Integer.parseInt(s[3]));
-					o.changePosition(o.getPosition());
-				}
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.isNewGame = false;
+		this.organisms = new ArrayList<Organism>();
+		this.addAfter = new ArrayList<Organism>();
+		this.removeAfter = new ArrayList<Organism>();
+		this.spectator = new Spectator(this);
 	}
 	
 	public void saveGame() {
@@ -111,9 +86,76 @@ public final class World {
 		}
 	}
 	
+	public void loadGame() {
+		ArrayList<String> output = new ArrayList<String>();
+		File file = new File("save.txt");
+		if(!file.exists()) {
+			System.out.println("TEST NO FILE");
+			JFrame alert = new JFrame();
+			alert.setBounds(0, 0, 200, 100);
+			alert.setLocationRelativeTo(null);
+			alert.setResizable(false);
+			alert.setVisible(true);
+			JLabel text = new JLabel("THERE IS NO FILE TO LOAD!", SwingConstants.CENTER);
+			alert.add(text);
+			alert.revalidate();
+			alert.repaint();
+			javax.swing.Timer t = new javax.swing.Timer(1500, (ActionListener) new ActionListener() {
+		          public void actionPerformed(ActionEvent e) {
+		        	  System.exit(1);
+		          }
+		       });
+			t.start();
+		}
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader("save.txt"));
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		String[] s = null;
+		String sString = "";
+		try {
+			s = br.readLine().split(", ");
+			this.width = Integer.parseInt(s[0]);
+			this.height = Integer.parseInt(s[1]);
+			this.days = Integer.parseInt(s[2]);
+			this.gameFrame = new GameFrame(this.width, this.height);
+			this.map = new Organism[this.height][this.width];
+			while((sString = br.readLine()) != null) {
+				s = sString.split(", ");
+				// for(String st : s) System.out.println(st);
+				ArrayList<Integer> position = new ArrayList<Integer>(Arrays.asList(Integer.parseInt(s[4]), Integer.parseInt(s[5])));
+				if(s[0].equalsIgnoreCase("Human")) {
+					Human h = (Human) this.createOrganism("Human", position, true);
+					h.setStrength(Integer.parseInt(s[1]));
+					h.setAge(Integer.parseInt(s[3]));
+					h.setSkillCooldown(Integer.parseInt(s[6]));
+					h.setSkillDuration(Integer.parseInt(s[7]));
+					// h.changePosition(h.getPosition());
+					this.player = h;
+				}
+				else {
+					Organism o = this.createOrganism(s[0], position, true);
+					o.setStrength(Integer.parseInt(s[1]));
+					o.setAge(Integer.parseInt(s[3]));
+					// o.changePosition(o.getPosition());
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void gameLoop() {
-		init();
+		// System.out.println("a");
+		if(this.isNewGame) init();
+		// System.out.println("b");
+		// System.out.println(this.player.toString());
 		while(this.player.isOrganismAlive()) {
+			// System.out.println("c");
 			for(Organism organism : this.organisms) {
 				// if(organism instanceof Human) System.out.println("HUMAN TURN");
 				organism.action();
@@ -133,11 +175,19 @@ public final class World {
 			this.sortOrganisms();
 			this.saveGame();
 			this.days++;
+			this.spectator.displayComments();
 			// System.out.println(days);
 		}
+		this.getGameFrame().getCommentBox().setText("PLAYER IS DEAD, GAME OVER!");
+		File file = new File("save.txt");
+		if(file.exists()) file.delete();
 		// this.getGameFrame().dispose();
 	}
 	
+	public final Spectator getSpectator() {
+		return spectator;
+	}
+
 	public Boolean canMove(ArrayList<Integer> positon) {
 		if(positon.get(0) >= 0 && positon.get(0) < this.width && positon.get(1) >= 0 && positon.get(1) < this.height) return true;
 		return false;
@@ -153,8 +203,8 @@ public final class World {
 	}
 	
 	private void init() {
+		int loopSize = 4;
 		for(String name : this.animalNames) {
-			int loopSize = (name == "Wolf") ? 2 : 2;
 			for(int i = 0; i < loopSize; i++) {
 				Random random = new Random();
 			ArrayList<Integer> position;
@@ -166,7 +216,7 @@ public final class World {
 			}
 		}
 		for(String name : this.plantNames) {
-			for(int i = 0; i < 2; i++) {
+			for(int i = 0; i < loopSize; i++) {
 				Random random = new Random();
 				ArrayList<Integer> position;
 				while(true) {
@@ -245,6 +295,12 @@ public final class World {
 			System.out.print(o.getInitiative() + ", ");
 		}
 		System.out.println();
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		this.gameLoop();
 	}
 	
 }

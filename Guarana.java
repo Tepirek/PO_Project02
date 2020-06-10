@@ -11,7 +11,9 @@ public final class Guarana extends Plant {
 	@Override
 	public void collision(Organism other) {
 		// TODO Auto-generated method stub
+		int old = other.getStrength();
 		other.increaseStrength(3);
+		this.getWorld().getSpectator().addNewComment(other.toString() + " eats Guarana and gains strength: (" + old + ") => (" + (old + 3) + ")");
 		super.collision(other);
 	}
 }
